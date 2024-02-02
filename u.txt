@@ -1,0 +1,54 @@
+{
+    "content": {
+        "name": "Flow",
+        "description": "Database select flow",
+        "configuration": {
+            "source": "HTTP Listener",
+            "processors": [
+                {
+                    "name": "Database Select",
+                    "description": "Executes select operation from input parameters",
+                    "configuration": {
+                        "query": "SELECT * FROM my_table WHERE column_id = #[payload.column_id]"
+                    }
+                },
+                {
+                    "name": "Choice Router",
+                    "description": "Routes the flow based on the result of the select operation",
+                    "configuration": {
+                        "when": [
+                            {
+                                "expression": "#[payload != null]",
+                                "routes": [
+                                    {
+                                        "name": "Transform",
+                                        "description": "Transforms the output based on the conditions",
+                                        "configuration": {
+                                            "expression": "#[payload]"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "expression": "#[payload == null]",
+                                "routes": [
+                                    {
+                                        "name": "Error",
+                                        "description": "Handles the error case"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Logger",
+                    "description": "Logs the transformed results",
+                    "configuration": {
+                        "message": "Transformed results: #[payload]"
+                    }
+                }
+            ]
+        }
+    }
+}
